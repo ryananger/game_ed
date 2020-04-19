@@ -7,6 +7,7 @@ var game = {
     entities: [],
     ids: 0,
     blocks: [],
+    activeBlock: [],
     blockTypes: {total: 0, n1: 0, n2: 0, n3: 0, n4: 0},
     board: [],
     frameNum: 0,
@@ -15,7 +16,8 @@ var game = {
     mx: null,
     my: null,
     keyPressed: null,
-    sec: 1000
+    sec: 1000,
+    score: 0
 };
 
 //load bg
@@ -48,6 +50,9 @@ function blockSpawn() {
     var origin = {x: Math.floor(Math.random()*20), y: 0};
     var check = 0;
     var spawnable = false;
+    var rand = Math.floor(Math.random()*4);
+
+    game.activeBlock = [];
 
     switch (type) {
         //line
@@ -67,14 +72,17 @@ function blockSpawn() {
                 };
             };
             if (spawnable) {
+
                 for (i = 0; i < 4; i++) {
                     var x = origin.x;
                     var y = origin.y + i;
 
-                    var block = newEntity('block', 'img', true, x*32, y*32, 'resources/block2.png');
+                    var block = blockColor(rand, x, y);
 
                     game.board[x][y].occ = block.prop;
-                    game.blocks.push(block.prop)
+                    game.blocks.push(block.prop);
+
+                    game.activeBlock.push(block.prop);
                 }
 
                 game.blockTypes.total++;
@@ -110,13 +118,15 @@ function blockSpawn() {
                             var x = origin.x + i;
                             var y = origin.y + j;
 
-                            var block = newEntity('block', 'img', true, x*32, y*32, 'resources/block1.png');
+                            var block = blockColor(rand, x, y);
 
                             game.board[x][y].occ = block.prop;
                             game.blocks.push(block.prop);
+
+                            game.activeBlock.push(block.prop);
+
                         };
                     };
-
                     game.blockTypes.total++;
                     game.blockTypes.n2++;
 
@@ -148,16 +158,20 @@ function blockSpawn() {
                         var x = origin.x;
                         var y = origin.y + i;
 
-                        var block = newEntity('block', 'img', true, x*32, y*32, 'resources/block3.png');
+                        var block = blockColor(rand, x, y);
 
                         game.board[x][y].occ = block.prop;
                         game.blocks.push(block.prop);
 
+                        game.activeBlock.push(block.prop);
+
                         if (i == 2) {
-                            var block = newEntity('block', 'img', true, (x + 1)*32, y*32, 'resources/block3.png');
+                            var block = blockColor(rand, x + 1, y);
 
                             game.board[x + 1][y].occ = block.prop;
                             game.blocks.push(block.prop);
+
+                            game.activeBlock.push(block.prop);
                         }
                     }
 
@@ -192,16 +206,20 @@ function blockSpawn() {
                         var x = origin.x;
                         var y = origin.y + i;
 
-                        var block = newEntity('block', 'img', true, x*32, y*32, 'resources/block4.png');
+                        var block = blockColor(rand, x, y);
 
                         game.board[x][y].occ = block.prop;
                         game.blocks.push(block.prop);
 
+                        game.activeBlock.push(block.prop);
+
                         if (i == 2) {
-                            var block = newEntity('block', 'img', true, (x - 1)*32, y*32, 'resources/block4.png');
+                            var block = blockColor(rand, x - 1, y);
 
                             game.board[x - 1][y].occ = block.prop;
                             game.blocks.push(block.prop);
+
+                            game.activeBlock.push(block.prop);
                         }
                     }
 
@@ -214,7 +232,30 @@ function blockSpawn() {
             }
             break;
     };
+
+    console.log(game.activeBlock)
 };
+
+function blockColor(rand, x, y) {
+    switch(rand) {
+        case 0:
+            var block = newEntity('block', 'img', true, x*32, y*32, 'resources/block1.png');
+            return block;
+            break;
+        case 1:
+            var block = newEntity('block', 'img', true, x*32, y*32, 'resources/block2.png');
+            return block;
+            break;
+        case 2:
+            var block = newEntity('block', 'img', true, x*32, y*32, 'resources/block3.png');
+            return block;
+            break;
+        case 3:
+            var block = newEntity('block', 'img', true, x*32, y*32, 'resources/block4.png');
+            return block;
+            break;
+    };
+}
 
 //KeyboardHandler
 function keyPress(key) {
@@ -309,6 +350,7 @@ function boardUp() {
 
 function boardDown() {
     lineCheck();
+
     for (x = 0; x < game.board.length; x++) {
         for (y = 18; y >= 0; y--) {
             
@@ -338,6 +380,8 @@ function lineCheck() {
     };
 
 
+    game.score += 200;
+    console.log(game.score);
     //clear blocks, board, and entities
     for (i = 0; i < 20; i++) {
 
@@ -365,7 +409,7 @@ var downTimer = setInterval (function (){
 
 var blockTimer = setInterval (function (){
     blockSpawn();
-}, 500);
+}, 100);
 
 var frame = setInterval( function() {
     var frameDraw = draw();    

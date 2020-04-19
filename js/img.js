@@ -16,6 +16,7 @@ function newImage(name, x, y, source, ent) {
 };
 
 function draw() {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
         
         for (i = 0; i < game.entities.length; i++) {
             var ent = game.entities[i];
