@@ -11,6 +11,8 @@ canvas.addEventListener('click', function(e) {
 
 window.addEventListener('keydown', (event) => {
 	game.keyPressed = event.key;
+	keyPress(event.key);
+	//console.log(event.key);
 });
 
 window.addEventListener('mousemove', function (e){

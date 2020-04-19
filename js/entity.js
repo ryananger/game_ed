@@ -4,19 +4,28 @@ function newEntity(name, type, click, x, y, source, width, height) {
 
 		var ent = this;
 
-		ent.type = type;
-		ent.clickable = click;
+		ent.prop = {
+			img: null,
+			idn: game.ids + 1,
+			name: name,
+			type: type,
+			clickable: click,
 
-		ent.width = width;
-		ent.height = height;
-		ent.x = x;
-		ent.y = y;
-		ent.img = null;
+			width: width,
+			height: height,
+			x: x,
+			y: y,
 
-		if (ent.type = 'img') {
+		};
+
+		if (ent.prop.type = 'img') {
 			newImage(name, x, y, source, ent);
-		}
+		};
 		
-		game.entities.push(ent);
+		game.entities.push(ent.prop);
+
+		game.ids++;
+
+		return this;
 		
 };
