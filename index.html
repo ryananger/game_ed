@@ -7,10 +7,9 @@
     <style>
       body {
         background-color: #4a2f4a;
+        overflow: hidden;
       }
       canvas {
-        padding-left: 0;
-        padding-right: 0;
         margin-left: auto;
         margin-right: auto;
         display: block;
@@ -20,11 +19,13 @@
   </head>
 
   <body>
-    <canvas id="gamescreen" width="640px" height="640px"></canvas>
+    <canvas id="gamescreen" width="640px" height="960px"></canvas>
+    <canvas id="gamescreen2" width="640px" height="960px"></canvas>
     <script src='js/img.js'></script>
     <script src='js/entity.js'></script>
     <script src="js/game.js"></script>
     <script src="js/input.js"></script>
+    <script src="js/audio.js"></script>
   </body>
 </html>
 

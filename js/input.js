@@ -10,6 +10,7 @@ canvas.addEventListener('click', function(e) {
 });
 
 window.addEventListener('keydown', (event) => {
+	rain.play();
 	game.keyPressed = event.key;
 	keyPress(event.key);
 	//console.log(event.key);
