@@ -2,8 +2,8 @@ var canvas = document.getElementById("gamescreen");
 var canvas2 = document.getElementById("gamescreen2");
 var ctx = canvas.getContext("2d");
 
-ctx.font = '14px Arial';
-ctx.fillStyle = '#f5a69f'
+ctx.font = '30px Roboto Condensed';
+ctx.fillStyle = '#ffb088';
 
 document.body.style.zoom="80%"
 
@@ -23,11 +23,13 @@ var game = {
     mx: null,
     my: null,
     keyPressed: null,
-    sec: 1000,
     score: 0,
-    speed: 5,
+    speed: 7,
     blockspeed: 0,
-    frameRate: 12.5
+    frameRate: 12.5,
+
+    noteSwitch: 0,
+    playSound: true
 };
 
 //load bg
@@ -96,6 +98,7 @@ function blockSpawn() {
                 game.blockTypes.n1++;
 
             } else {
+                game.activeBlock = [];
                 blockSpawn();
             }
             break;
@@ -194,7 +197,7 @@ function blockSpawn() {
             break;
 
             //L left
-            case 3:
+        case 3:
             if (origin.x > 0) {
                 for (i = 0; i < 3; i++) {
                     var x = origin.x;
@@ -495,13 +498,15 @@ function colorGroups() {
         }
     };
 
-    if (biggest.size < 12) {
+    if (biggest.size < 8) {
         return;
     };
 
     var points = Math.floor(Math.pow(biggest.size*2, 1.48));
     game.score += points;
-    console.log(biggest.size, points, game.score);
+
+    pointSound();
+
 
     for (i = 0; i < groups[biggest.index].length; i++) {
         var id = groups[biggest.index][i].idn;
@@ -523,6 +528,41 @@ function colorGroups() {
         };
     };
 
+};
+
+function pointSound() {
+
+    if (game.playSound) {
+        notes[game.noteSwitch].play();
+
+        if (Math.floor(Math.random()*4) > 2) {
+            var n = Math.floor(Math.random()*4);
+
+            switch (n) {
+                case 0:
+                case 1:
+                    game.noteSwitch = 7;
+                    break;
+                case 2:
+                    game.noteSwitch = 2;
+                    break;
+                case 3:
+                    game.noteSwitch = 5;
+                    break;
+            }
+        } else if (Math.floor(Math.random()*4) > 2) {
+            game.noteSwitch = Math.floor(Math.random()*8);
+        } else if (game.noteSwitch == 7) {
+            game.noteSwitch = 0;
+        } else {
+            game.noteSwitch++;
+        };
+
+        game.playSound = false;
+        var soundTimer = setTimeout(function (){
+            game.playSound = true;
+        }, 125);
+    }        
 };
 
 function checkAdjacent(group, color, x, y) {
@@ -634,9 +674,10 @@ function keyPress(key) {
             boardRight();
             break;
         case '0':
-            if (game.speed > 0) {game.speed--;}
-
-            game.blockspeed = (game.blockspeed/2) + 25;
+            if (game.speed > 0) {
+                game.speed--;
+                game.blockspeed = ((game.blockspeed - 10)/2) + 10;
+            };            
 
             clearInterval(blockTimer);
 
@@ -644,25 +685,42 @@ function keyPress(key) {
                 blockSpawn();
             }, game.blockspeed);
 
+            console.log(game.speed, game.blockspeed);
+
             break;
         case '9':
-            if (game.speed < 6) {
+            if (game.speed < 8) {
                 game.speed++;
-                game.blockspeed = (game.blockspeed*2) + 25;
+                game.blockspeed = ((game.blockspeed - 10)*2) + 10;
+            };
 
-                clearInterval(blockTimer);
+            clearInterval(blockTimer);
 
-                blockTimer = setInterval (function (){
-                    blockSpawn();
-                }, game.blockspeed);
-            }
+            blockTimer = setInterval (function (){
+                blockSpawn();
+            }, game.blockspeed);
+
+            console.log(game.speed, game.blockspeed);
+
             break;
         case 'm':
             if (rain.volume != 0) {
                 rain.volume = 0;
+                for (i = 0; i < notes.length; i++) {
+                    notes[i].volume = 0;
+                }
             } else {
-                rain.volume = 0.04;
+                rain.volume = 0.11;
+                for (i = 0; i < notes.length; i++) {
+                    notes[i].volume = 1;
+                }
             }
+            break;
+        case 'u':
+            reset();
+            break;
+        case 'tab':
+            break;
 
 
         case 'b':
@@ -671,10 +729,42 @@ function keyPress(key) {
         case 'i':
             console.log("ids: " + game.ids);
             break;
+
         case 'q':
             colorGroups();
             break;
     }
+};
+
+function reset() {
+
+    game.entities = [];
+    game.blocks = [];
+    game.activeBlock = [];
+    game.blockTypes = {total: 0, n1: 0, n2: 0, n3: 0, n4: 0};
+    game.board = [];
+    game.score = 0;
+
+    var bg = newEntity('bg', 'img', false, 0, 0, 'resources/bg.png');
+
+    //create board array
+    for (i = 0; i < 20; i++) {
+        var col = [];
+
+        for (j = 0; j < 20; j++) {
+            col.push( {
+                x: i,
+                y: j,
+                occ: false
+            })
+        };    
+
+        game.board.push(col);
+    }
+
+    //block types
+    blockSpawn();
+
 };
 
 function boardLeft() {
@@ -835,7 +925,8 @@ function lineCheck() {
     };
 
     game.score += 400;
-    console.log(game.score);
+
+    pointSound();
 
     //clear blocks, board, and entities
     for (i = 0; i < 20; i++) {
